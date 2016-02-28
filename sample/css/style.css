@@ -1,0 +1,47 @@
+/* Qiita style */
+.code-frame {
+  border-top-right-radius: 3px;
+  border-top-left-radius: 3px;
+  border-bottom-right-radius: 3px;
+  border-bottom-left-radius: 3px;
+  margin: 1em 0;
+  background-color: #f7f7f7;
+  line-height: 0;
+
+  overflow: auto;
+
+  font-size: 16px;
+}
+
+.code-frame .code-lang {
+  color: #555;
+  display: inline-block;
+  padding: 3px 6px;
+  margin: 0;
+  line-height: 1;
+  background-color: rgba(0,0,0,0.07);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.code-frame pre {
+  border-top-right-radius: 3px;
+  border-top-left-radius: 3px;
+  border-bottom-right-radius: 3px;
+  border-bottom-left-radius: 3px;
+  border: 0;
+  margin: 0;
+  padding: 8px 15px;
+  line-height: 18px;
+  background-color: #f7f7f7;
+  white-space: pre-wrap;
+  font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+}
+
+html {
+  font-size: 10px;
+}
+
+body {
+  background-color: #fff;
+}
