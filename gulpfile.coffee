@@ -2,7 +2,10 @@
 
 gulp = require 'gulp'
 runSequence = require 'run-sequence'
-babel = require 'gulp-babel'
+source = require 'vinyl-source-stream';
+browserify = require 'browserify';
+babelify = require 'babelify';
+debowerify = require 'debowerify';
 rename = require 'gulp-rename'
 uglify = require 'gulp-uglify'
 decodecode = require 'gulp-decodecode'
@@ -18,13 +21,13 @@ gulp.task 'serve', () ->
       open: true,
   gulp.watch 'src/egul.js', ['build']
 
-gulp.task 'babel', () ->
-  return gulp.src('src/egul.js')
-    .pipe plumber(
-      errorHandler: notify.onError("Error: <%= error.message %>"),
-    )
-    .pipe do babel
-    .pipe (gulp.dest 'dist')
+gulp.task 'js', () ->
+  return browserify('src/egul.js')
+    .transform(babelify)
+    .transform(debowerify)
+    .bundle()
+    .pipe(source('egul.js'))
+    .pipe(gulp.dest('dist'));
 
 gulp.task 'minify', () ->
   gulp.src('dist/egul.js')
@@ -41,7 +44,7 @@ gulp.task 'deco', () ->
     .pipe (gulp.dest 'dist')
 
 gulp.task 'build', () ->
-  runSequence 'babel', 'minify', 'deco'
+  runSequence 'js', 'minify', 'deco'
 
 gulp.task 'watch', () ->
   gulp.watch('src/egul.js', ['build'])
