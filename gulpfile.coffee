@@ -13,7 +13,7 @@ plumber = require 'gulp-plumber'
 notify = require 'gulp-notify'
 webserver = require 'gulp-webserver'
 
-gulp.task 'serve', () ->
+gulp.task 'serve', ['build'], () ->
   gulp.src '.'
     .pipe webserver
       livereload: true,
