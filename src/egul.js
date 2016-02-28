@@ -1,55 +1,62 @@
 import $ from 'jquery'
+import _ from 'lodash'
 
 class Egul {
-  constructor() {
-    this.$codeFrame = $('<div class="code-frame"></div>');
-    this.$codeLang = $('<div class="code-lang"></div>');
-    this.$highlight = $('<div class="highlight"></div>');
-    this.$preCode = $('<pre><code></code></pre>');
+  constructor(opts = {}) {
+    this.template = opts.template ||
+`<div class="code-frame">
+  <div class="code-lang"><%= fileName %></div>
+  <div class="highlight">
+    <pre><code></code></pre>
+  </div>
+</div>`;
+    this.compiled = _.template(this.template);
   }
 
-  renderHtml () {
+  renderHtml() {
     var htmlTxt = _.template(
-      '<html>\n' +
-      '  <head>' +
-      '<%= head %>\n' +
-      '  </head>\n' +
-      '  <body>' +
-      '<%= body %>\n' +
-      '  </body>\n' +
-      '</html>'
+`<html>
+  <head>
+    <%= head %>
+  </head>
+  <body>
+    <%= body %>
+  </body>
+</html>`
     )({
       head: $('head').html().replace(/\s+$/, '').replace(/\n/g, '\n  '),
       body: $('body').html().replace(/\s+$/, '').replace(/\n/g, '\n  ')
     });
 
-    var $frame = this.$codeFrame.clone();
-    var $hl = this.$highlight.clone();
-    var $lang = (this.$codeLang.clone().text('index.html'))
-    var $code = this.$preCode.clone().text(htmlTxt);
-    $hl.append($code);
-    $frame.append($lang).append($hl);
-    $('.block-source--html').append($frame);
+    var child = this.compiled({
+      fileName: 'index.html',
+    });
+    var $child = $(child);
+    $child.find('code').text(htmlTxt);
+    $('.block-source--html').append($child);
   }
 
-  renderAssets (fileArr) {
-    var $blockSrc = $('.block-source--list');
-    fileArr.forEach((fileName) => {
-      $.ajax({
-        url: fileName,
-        dataType: 'text',
-        success: (res) => {
-          var srcTxt = res;
+  getSource(fileName) {
+    $.ajax({
+      url: fileName,
+      dataType: 'text',
+      success: (res) => {
+        var srcTxt = res;
 
-          var $frame = this.$codeFrame.clone();
-          var $hl = this.$highlight.clone();
-          var $lang = (this.$codeLang.clone().text(fileName))
-          var $code = this.$preCode.clone().text(srcTxt);
-          $hl.append($code);
-          $frame.append($lang).append($hl);
-          $blockSrc.append($frame);
-        }
-      });
+        var child = this.compiled({
+          fileName: fileName,
+        });
+        var $child = $(child);
+        $child.find('code').text(srcTxt);
+        window.$blockSrc.append($child);
+      }
+    });
+  }
+
+  renderAssets(fileArr) {
+    window.$blockSrc = $('.block-source--list');
+    fileArr.forEach((fileName) => {
+      this.getSource(fileName);
     });
   }
 }

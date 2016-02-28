@@ -1,6 +1,7 @@
 window.licker = window.licker || {};
 (function(ns) {
-  var egul = new Egul();
+  var egul = new Egul({
+  });
 
   egul.renderHtml();
 
