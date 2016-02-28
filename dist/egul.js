@@ -8315,29 +8315,44 @@ var Egul = function () {
 
     _classCallCheck(this, Egul);
 
-    this.template = opts.template || '<div class="code-frame">\n  <div class="code-lang"><%= fileName %></div>\n  <div class="highlight">\n    <pre><code></code></pre>\n  </div>\n</div>';
+    this.template = opts.template || '<div class="code-frame">\n  <div class="code-lang"><%= fileType %><%= (fileType && fileName) ? \':\' : \'\' %><%= fileName %></div>\n  <div class="highlight">\n    <pre><code></code></pre>\n  </div>\n</div>';
     this.compiled = _lodash2.default.template(this.template);
   }
 
   _createClass(Egul, [{
-    key: 'renderHtml',
-    value: function renderHtml() {
+    key: 'renderDom',
+    value: function renderDom() {
       var htmlTxt = _lodash2.default.template('<html>\n  <head>\n    <%= head %>\n  </head>\n  <body>\n    <%= body %>\n  </body>\n</html>')({
         head: (0, _jquery2.default)('head').html().replace(/\s+$/, '').replace(/\n/g, '\n  '),
         body: (0, _jquery2.default)('body').html().replace(/\s+$/, '').replace(/\n/g, '\n  ')
       });
 
       var child = this.compiled({
-        fileName: 'index.html'
+        fileType: 'html',
+        fileName: ''
       });
       var $child = (0, _jquery2.default)(child);
       $child.find('code').text(htmlTxt);
-      (0, _jquery2.default)('.block-source--html').append($child);
+      (0, _jquery2.default)('.block-source--dom').append($child);
     }
   }, {
-    key: 'getSource',
-    value: function getSource(fileName) {
+    key: 'renderAsset',
+    value: function renderAsset() {
       var _this = this;
+
+      var opts = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+      var elm = opts.elm;
+      var fileName = opts.fileName || '';
+      var fileType = opts.fileType || '';
+
+      var $elm;
+
+      if (elm instanceof HTMLElement) {
+        $elm = (0, _jquery2.default)(elm);
+      } else {
+        $elm = elm;
+      }
 
       _jquery2.default.ajax({
         url: fileName,
@@ -8346,22 +8361,13 @@ var Egul = function () {
           var srcTxt = res;
 
           var child = _this.compiled({
-            fileName: fileName
+            fileName: fileName,
+            fileType: fileType
           });
           var $child = (0, _jquery2.default)(child);
           $child.find('code').text(srcTxt);
-          window.$blockSrc.append($child);
+          $elm.append($child);
         }
-      });
-    }
-  }, {
-    key: 'renderAssets',
-    value: function renderAssets(fileArr) {
-      var _this2 = this;
-
-      window.$blockSrc = (0, _jquery2.default)('.block-source--list');
-      fileArr.forEach(function (fileName) {
-        _this2.getSource(fileName);
       });
     }
   }]);

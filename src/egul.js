@@ -5,7 +5,7 @@ class Egul {
   constructor(opts = {}) {
     this.template = opts.template ||
 `<div class="code-frame">
-  <div class="code-lang"><%= fileName %></div>
+  <div class="code-lang"><%= fileType %><%= (fileType && fileName) ? ':' : '' %><%= fileName %></div>
   <div class="highlight">
     <pre><code></code></pre>
   </div>
@@ -13,7 +13,7 @@ class Egul {
     this.compiled = _.template(this.template);
   }
 
-  renderHtml() {
+  renderDom() {
     var htmlTxt = _.template(
 `<html>
   <head>
@@ -29,14 +29,27 @@ class Egul {
     });
 
     var child = this.compiled({
-      fileName: 'index.html',
+      fileType: 'html',
+      fileName: '',
     });
     var $child = $(child);
     $child.find('code').text(htmlTxt);
-    $('.block-source--html').append($child);
+    $('.block-source--dom').append($child);
   }
 
-  getSource(fileName) {
+  renderAsset(opts = {}) {
+    var elm = opts.elm;
+    var fileName = opts.fileName || '';
+    var fileType = opts.fileType || '';
+
+    var $elm;
+
+    if(elm instanceof HTMLElement) {
+      $elm = $(elm);
+    } else {
+      $elm = elm;
+    }
+
     $.ajax({
       url: fileName,
       dataType: 'text',
@@ -45,18 +58,12 @@ class Egul {
 
         var child = this.compiled({
           fileName: fileName,
+          fileType: fileType,
         });
         var $child = $(child);
         $child.find('code').text(srcTxt);
-        window.$blockSrc.append($child);
+        $elm.append($child);
       }
-    });
-  }
-
-  renderAssets(fileArr) {
-    window.$blockSrc = $('.block-source--list');
-    fileArr.forEach((fileName) => {
-      this.getSource(fileName);
     });
   }
 }
