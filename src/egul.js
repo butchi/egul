@@ -37,7 +37,34 @@ class Egul {
     $('.block-source--dom').append($child);
   }
 
+  getAsset(opts = {}) {
+    var callback = opts.callback || function(res) {console.log(res)};
+    var fileName = opts.fileName;
+
+    if(opts.fileName) {
+      $.ajax({
+        url: fileName,
+        dataType: 'text',
+        success: (res, compiled) => {
+          return callback(res, this.compiled);
+        }
+      });
+    }
+  }
+
   renderAsset(opts = {}) {
+    function callback(res, compiled) {
+      var srcTxt = res;
+
+      var child = compiled({
+        fileName: fileName,
+        fileType: fileType,
+      });
+      var $child = $(child);
+      $child.find('code').text(srcTxt);
+      $elm.append($child);
+    }
+
     var elm = opts.elm;
     var fileName = opts.fileName || '';
     var fileType = opts.fileType || '';
@@ -50,20 +77,9 @@ class Egul {
       $elm = elm;
     }
 
-    $.ajax({
-      url: fileName,
-      dataType: 'text',
-      success: (res) => {
-        var srcTxt = res;
-
-        var child = this.compiled({
-          fileName: fileName,
-          fileType: fileType,
-        });
-        var $child = $(child);
-        $child.find('code').text(srcTxt);
-        $elm.append($child);
-      }
+    this.getAsset({
+      callback: callback,
+      fileName: fileName,
     });
   }
 }

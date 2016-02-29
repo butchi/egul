@@ -1,5 +1,7 @@
 window.licker = window.licker || {};
 (function(ns) {
+  console.log('Hello, world!');
+
   var egul = new Egul({
   });
 

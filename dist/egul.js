@@ -8336,11 +8336,43 @@ var Egul = function () {
       (0, _jquery2.default)('.block-source--dom').append($child);
     }
   }, {
-    key: 'renderAsset',
-    value: function renderAsset() {
+    key: 'getAsset',
+    value: function getAsset() {
       var _this = this;
 
       var opts = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+      var callback = opts.callback || function (res) {
+        console.log(res);
+      };
+      var fileName = opts.fileName;
+
+      if (opts.fileName) {
+        _jquery2.default.ajax({
+          url: fileName,
+          dataType: 'text',
+          success: function success(res, compiled) {
+            return callback(res, _this.compiled);
+          }
+        });
+      }
+    }
+  }, {
+    key: 'renderAsset',
+    value: function renderAsset() {
+      var opts = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+      function callback(res, compiled) {
+        var srcTxt = res;
+
+        var child = compiled({
+          fileName: fileName,
+          fileType: fileType
+        });
+        var $child = (0, _jquery2.default)(child);
+        $child.find('code').text(srcTxt);
+        $elm.append($child);
+      }
 
       var elm = opts.elm;
       var fileName = opts.fileName || '';
@@ -8354,20 +8386,9 @@ var Egul = function () {
         $elm = elm;
       }
 
-      _jquery2.default.ajax({
-        url: fileName,
-        dataType: 'text',
-        success: function success(res) {
-          var srcTxt = res;
-
-          var child = _this.compiled({
-            fileName: fileName,
-            fileType: fileType
-          });
-          var $child = (0, _jquery2.default)(child);
-          $child.find('code').text(srcTxt);
-          $elm.append($child);
-        }
+      this.getAsset({
+        callback: callback,
+        fileName: fileName
       });
     }
   }]);
